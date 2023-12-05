@@ -7,6 +7,9 @@
 #include <vision_interfaces/msg/robot.hpp>
 #include "packet.h"
 
+using namespace drivers::serial_driver;
+using namespace std::chrono_literals;
+
 class serial_driver_node : public rclcpp::Node{
 public:
     /*
