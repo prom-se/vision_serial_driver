@@ -58,13 +58,11 @@ void serial_driver_node::serial_reopen_callback(){
 
 void serial_driver_node::serial_read_thread(){
   while(rclcpp::ok()){
-    std::vector<uint8_t> header(1);
     std::vector<uint8_t> robotData(sizeof(robotMsg));
     if(isOpen){
       try{
-        serialDriver.port()->receive(header);
-        if(header[0]==0xA5){//包头为0xA5
-          serialDriver.port()->receive(robotData);
+        serialDriver.port()->receive(robotData);
+        if(robotData[0]==0xA5 && robotData[1]==0x00){//包头为0xA5
           memcpy(rArray->array,robotData.data(),sizeof(robotMsg));
         }
       }
@@ -77,10 +75,8 @@ void serial_driver_node::serial_read_thread(){
 }
 
 void serial_driver_node::serial_write(){
-  std::vector<uint8_t> header={0xA5};//包头为0xA5
   std::vector<uint8_t> visionData(sizeof(visionMsg));
   memcpy(visionData.data(),vArray->array,sizeof(visionMsg));
-  visionData.insert(visionData.begin(),header[0]);
   try{
     serialDriver.port()->send(visionData);
   }
@@ -92,6 +88,7 @@ void serial_driver_node::serial_write(){
 
 void serial_driver_node::auto_aim_callback(const vision_interfaces::msg::AutoAim vMsg){
   if(isOpen){
+    vArray->msg.head=0xA5;
     vArray->msg.aimPitch=vMsg.aim_pitch;
     vArray->msg.aimYaw=vMsg.aim_yaw;
     serial_write();
