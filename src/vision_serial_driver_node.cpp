@@ -67,8 +67,8 @@ void serial_driver_node::serial_read_thread(){
         if(head[0]==0xA5 && head[1]==0x00){//包头为0xA5
           serialDriver.port()->receive(robotData);
           robotData.resize(sizeof(robotMsg));
-          robotData.insert(robotData.begin(),head[0]);
           robotData.insert(robotData.begin(),head[1]);
+          robotData.insert(robotData.begin(),head[0]);
           memcpy(rArray->array,robotData.data(),sizeof(robotMsg));
         }
       }
