@@ -43,7 +43,7 @@ private:
     visionArray* vArray;
     robotArray*  rArray;
     bool isOpen=false;
-    const std::string dev_name;
+    std::string* dev_name;
     std::thread serialReadThread;
     SerialPortConfig* portConfig;
     IoContext ctx;

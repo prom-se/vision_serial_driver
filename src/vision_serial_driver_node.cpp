@@ -1,14 +1,15 @@
 #include "../include/vision_serial_driver/vision_serial_driver_node.hpp"
 
 serial_driver_node::serial_driver_node(std::string device_name,std::string node_name)
-:rclcpp::Node(node_name),
-dev_name{device_name},
+:rclcpp::Node(node_name),vArray{new visionArray},rArray{new robotArray},
+dev_name{new std::string(device_name)},
 portConfig{new SerialPortConfig(115200,FlowControl::NONE,Parity::NONE,StopBits::ONE)}
 {
   RCLCPP_INFO(get_logger(), "节点:/%s启动",node_name.c_str());
+  
   //清零
-  memset(vArray,0,sizeof(visionArray));
-  memset(rArray,0,sizeof(robotArray));
+  memset(vArray->array,0,sizeof(visionArray));
+  memset(rArray->array,0,sizeof(robotArray));
 
   //设置重启计时器1hz.
   reopenTimer=create_wall_timer(
@@ -43,26 +44,31 @@ void serial_driver_node::serial_reopen_callback(){
   //串口失效时尝试重启
   if(!isOpen){
     try{
-      RCLCPP_WARN(get_logger(),"重启串口:%s...",dev_name.c_str());
-      serialDriver.init_port(dev_name,*portConfig);
+      RCLCPP_WARN(get_logger(),"重启串口:%s...",dev_name->c_str());
+      serialDriver.init_port(*dev_name,*portConfig);
       serialDriver.port()->open();
       isOpen=serialDriver.port()->is_open();
     }
     catch(const std::system_error & error){
-      RCLCPP_ERROR(get_logger(),"打开串口:%s失败",dev_name.c_str());
+      RCLCPP_ERROR(get_logger(),"打开串口:%s失败",dev_name->c_str());
       isOpen=false;
     }
-    if(isOpen)RCLCPP_INFO(get_logger(),"打开串口:%s成功",dev_name.c_str());
+    if(isOpen)RCLCPP_INFO(get_logger(),"打开串口:%s成功",dev_name->c_str());
   }
 }
 
 void serial_driver_node::serial_read_thread(){
   while(rclcpp::ok()){
-    std::vector<uint8_t> robotData(sizeof(robotMsg));
+    std::vector<uint8_t> head(2);
+    std::vector<uint8_t> robotData(sizeof(robotMsg)-2);
     if(isOpen){
       try{
-        serialDriver.port()->receive(robotData);
-        if(robotData[0]==0xA5 && robotData[1]==0x00){//包头为0xA5
+        serialDriver.port()->receive(head);
+        if(head[0]==0xA5 && head[1]==0x00){//包头为0xA5
+          serialDriver.port()->receive(robotData);
+          robotData.resize(sizeof(robotMsg));
+          robotData.insert(robotData.begin(),head[0]);
+          robotData.insert(robotData.begin(),head[1]);
           memcpy(rArray->array,robotData.data(),sizeof(robotMsg));
         }
       }
