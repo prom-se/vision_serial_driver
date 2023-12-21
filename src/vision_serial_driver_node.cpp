@@ -3,7 +3,7 @@
 serial_driver_node::serial_driver_node(std::string device_name,std::string node_name)
 :rclcpp::Node(node_name),vArray{new visionArray},rArray{new robotArray},
 dev_name{new std::string(device_name)},
-portConfig{new SerialPortConfig(115200,FlowControl::NONE,Parity::NONE,StopBits::ONE)}
+portConfig{new SerialPortConfig(115200,FlowControl::NONE,Parity::NONE,StopBits::ONE)},ctx{IoContext(2)}
 {
   RCLCPP_INFO(get_logger(), "节点:/%s启动",node_name.c_str());
   
@@ -21,11 +21,11 @@ portConfig{new SerialPortConfig(115200,FlowControl::NONE,Parity::NONE,StopBits::
 
   //发布Robot信息.
   publisher=create_publisher<vision_interfaces::msg::Robot>(
-    "robot",10);
+    "/serial_driver/robot",10);
 
   //订阅AutoAim信息.
   subscription=create_subscription<vision_interfaces::msg::AutoAim>(
-    "aim_target",10,std::bind(&serial_driver_node::auto_aim_callback,this,std::placeholders::_1));
+    "/serial_driver/aim_target",10,std::bind(&serial_driver_node::auto_aim_callback,this,std::placeholders::_1));
   
   //设置串口读取线程.
   serialReadThread=std::thread(&serial_driver_node::serial_read_thread,this);
