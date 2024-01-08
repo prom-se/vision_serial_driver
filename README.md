@@ -12,15 +12,22 @@ ros2 run vision_serial_driver vision_serial_driver_node <device_name>
 | Byte | Data |
 | - | - |
 | 0 | 0xA5 |
-| 1-4 | aimYaw |
-| 5-8 | aimPitch |
+| 1 | 0x00 |
+| 2-5 | aimYaw |
+| 6-9 | aimPitch |
+
 ### 2.robotArray - RX
 | Byte | Data |
 | - | - |
 | 0 | 0xA5 |
-| 1 | Mode |
-| 2 | foeColor |
-| 3-4| Empty |
-| 5-8 | robotYaw |
-| 9-12 | robotPitch |
-| 13-16 | muzzleSpeed |
+| 1 | 0x00 |
+| 2 | Mode |
+| 3 | foeColor |
+| 4-7 | robotYaw |
+| 8-11 | robotPitch |
+| 12-15 | muzzleSpeed |
+
+## Pub
+/serial_driver/robot
+## Sub
+/serial_driver/aim_target
