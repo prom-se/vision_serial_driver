@@ -21,20 +21,18 @@ portConfig{new SerialPortConfig(115200,FlowControl::NONE,Parity::NONE,StopBits::
 
   //发布Robot信息.
   publisher=create_publisher<vision_interfaces::msg::Robot>(
-    "/serial_driver/robot",10);
+    "/serial_driver/robot",rclcpp::SensorDataQoS());
 
   //订阅AutoAim信息.
   subscription=create_subscription<vision_interfaces::msg::AutoAim>(
-    "/serial_driver/aim_target",10,std::bind(&serial_driver_node::auto_aim_callback,this,std::placeholders::_1));
+    "/serial_driver/aim_target",rclcpp::SensorDataQoS(),std::bind(&serial_driver_node::auto_aim_callback,this,std::placeholders::_1));
   
   //设置串口读取线程.
   serialReadThread=std::thread(&serial_driver_node::serial_read_thread,this);
+  serialReadThread.detach();
 };
 
 serial_driver_node::~serial_driver_node(){
-  if(serialReadThread.joinable()) {
-    serialReadThread.join();
-  }
   if(serialDriver.port()->is_open()) {
     serialDriver.port()->close();
   }
@@ -70,6 +68,7 @@ void serial_driver_node::serial_read_thread(){
           robotData.insert(robotData.begin(),head[1]);
           robotData.insert(robotData.begin(),head[0]);
           memcpy(rArray->array,robotData.data(),sizeof(robotMsg));
+          RCLCPP_INFO(get_logger(),"读取串口.");
         }
       }
       catch(const std::exception &error){
@@ -85,6 +84,7 @@ void serial_driver_node::serial_write(){
   memcpy(visionData.data(),vArray->array,sizeof(visionMsg));
   try{
     serialDriver.port()->send(visionData);
+    RCLCPP_INFO(get_logger(),"写入串口.");
   }
   catch(const std::exception &error){
     RCLCPP_ERROR(get_logger(),"写入串口时发生错误.");
@@ -108,7 +108,7 @@ void serial_driver_node::robot_callback(){
     msg.foe_color=rArray->msg.foeColor;
     msg.self_yaw=rArray->msg.robotYaw;
     msg.self_pitch=rArray->msg.robotPitch;
-    msg.muzzle_speed=rArray->msg.muzzleSpeed!=0?rArray->msg.muzzleSpeed:25.0;
+    msg.muzzle_speed=rArray->msg.muzzleSpeed!=0?rArray->msg.muzzleSpeed:12.0;
     publisher->publish(msg);
   }
 }
