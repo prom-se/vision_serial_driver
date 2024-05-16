@@ -137,7 +137,7 @@ void serial_driver_node::robot_callback()
     try
     {
       auto msg = vision_interfaces::msg::Robot();
-      msg.foe_color=rArray->msg.foeColor==1?0:1;
+      msg.foe_color=rArray->msg.foeColor==1?1:0;
       // msg.mode = rArray->msg.mode;
       // msg.foe_color = rArray->msg.foeColor;
       msg.self_yaw = rArray->msg.robotYaw;
