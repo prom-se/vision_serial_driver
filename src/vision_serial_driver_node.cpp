@@ -6,7 +6,7 @@ serial_driver_node::serial_driver_node(std::string device_name, std::string node
       portConfig{new SerialPortConfig(115200, FlowControl::NONE, Parity::NONE, StopBits::ONE)}, ctx{IoContext(2)}
 {
   RCLCPP_INFO(get_logger(), "节点:/%s启动", node_name.c_str());
-
+  muzzleSpeedFilter.Size=10;
   // 清零
   memset(vArray->array, 0, sizeof(visionArray));
   memset(rArray->array, 0, sizeof(robotArray));
@@ -30,7 +30,7 @@ serial_driver_node::serial_driver_node(std::string device_name, std::string node
   publisher = create_publisher<vision_interfaces::msg::Robot>(
       "/serial_driver/robot", rclcpp::SensorDataQoS());
 
-  // 订阅Aut oAim信息.
+  // 订阅AutoAim信息.
   autoAimSub = create_subscription<vision_interfaces::msg::AutoAim>(
       "/serial_driver/aim_target", rclcpp::SensorDataQoS(), std::bind(&serial_driver_node::auto_aim_callback, this, std::placeholders::_1));
 
@@ -86,7 +86,10 @@ void serial_driver_node::serial_read_thread()
           robotData.resize(sizeof(rArray->array));
           robotData.insert(robotData.begin(), head[1]);
           robotData.insert(robotData.begin(), head[0]);
+          float lastSpeed = rArray->msg.muzzleSpeed;
           memcpy(rArray->array, robotData.data(), sizeof(rArray->array));
+          rArray->msg.muzzleSpeed = rArray->msg.muzzleSpeed > 15 ? rArray->msg.muzzleSpeed : 15.0;
+          if(rArray->msg.muzzleSpeed != lastSpeed)muzzleSpeedFilter.update(rArray->msg.muzzleSpeed);
           // RCLCPP_INFO(get_logger(), "读取串口.");
         }
       }
@@ -122,6 +125,7 @@ void serial_driver_node::auto_aim_callback(const vision_interfaces::msg::AutoAim
     vArray->msg.fire = vMsg.fire;
     vArray->msg.aimPitch = vMsg.aim_pitch;
     vArray->msg.aimYaw = vMsg.aim_yaw;
+    vArray->msg.tracking = vMsg.tracking;
     serial_write(vArray->array, sizeof(vArray->array));
   }
 }
@@ -138,7 +142,9 @@ void serial_driver_node::robot_callback()
       // msg.foe_color = rArray->msg.foeColor;
       msg.self_yaw = rArray->msg.robotYaw;
       msg.self_pitch = rArray->msg.robotPitch;
-      msg.muzzle_speed = rArray->msg.muzzleSpeed > 10 ? rArray->msg.muzzleSpeed : 20.0;
+      double muzzle_speed = 15.0;
+      muzzleSpeedFilter.get_avg(muzzle_speed);
+      msg.muzzle_speed = muzzle_speed;
       publisher->publish(msg);
 
       geometry_msgs::msg::TransformStamped t;

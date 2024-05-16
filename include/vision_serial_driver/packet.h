@@ -4,10 +4,10 @@
 #include <cstdint>
 #include <algorithm>
 
-#pragma pack(2)
+#pragma pack(1)
 
-#define visionMsg sentry_visionMsg
-#define robotMsg sentry_robotMsg
+#define visionMsg hero_visionMsg
+#define robotMsg hero_robotMsg
 
 struct sentry_visionMsg
 {
@@ -47,6 +47,25 @@ struct inf_robotMsg
     float muzzleSpeed; // 弹速
 };
 
+struct hero_visionMsg
+{
+    uint16_t head;
+    uint8_t fire; // 开火标志
+    uint8_t tracking;   // 跟踪标志
+    float aimYaw;   // 目标Yaw
+    float aimPitch; // 目标Pitch
+};
+
+struct hero_robotMsg
+{
+    uint16_t head;
+    uint8_t foeColor;  // 敌方颜色 0-blue 1-red
+    float robotYaw;    // 自身Yaw
+    float robotPitch;  // 自身Pitch
+    float muzzleSpeed; // 弹速
+};
+
+
 union visionArray
 {
     struct visionMsg msg;
@@ -59,6 +78,6 @@ union robotArray
     uint8_t array[sizeof(struct robotMsg)];
 };
 
-#pragma pack(2)
+#pragma pack()
 
 #endif // SERIAL_PACKET_H

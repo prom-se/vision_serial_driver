@@ -9,6 +9,7 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include "avgFilter.hpp"
 #include "packet.h"
 
 using namespace drivers::serial_driver;
@@ -56,6 +57,7 @@ private:
     // robotArray *rArray;
     visionArray *vArray;
     robotArray *rArray;
+    avgFilter muzzleSpeedFilter;
     bool isOpen = false;
     std::string *dev_name;
     std::thread serialReadThread;
