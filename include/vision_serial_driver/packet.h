@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <algorithm>
 
-#pragma pack(1)
+#pragma pack(2)
 
 #define visionMsg hero_visionMsg
 #define robotMsg hero_robotMsg
