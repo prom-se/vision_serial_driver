@@ -43,12 +43,6 @@ private:
     */
     void auto_aim_callback(const vision_interfaces::msg::AutoAim vMsg);
 
-    /*
-    @brief 自定义控制器回调函数
-    @param vMsg 自定义控制器信息
-    */
-    void custom_ctrl_callback(const vision_interfaces::msg::CustomCtrl cMsg);
-
     /*@brief 机器人状态回调函数*/
     void robot_callback();
 
