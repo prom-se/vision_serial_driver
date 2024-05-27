@@ -6,8 +6,8 @@
 
 #pragma pack(2)
 
-#define visionMsg hero_visionMsg
-#define robotMsg hero_robotMsg
+#define visionMsg inf_visionMsg
+#define robotMsg inf_robotMsg
 
 struct sentry_visionMsg
 {
