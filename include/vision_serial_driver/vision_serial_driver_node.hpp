@@ -5,7 +5,6 @@
 #include <serial_driver/serial_driver.hpp>
 #include <vision_interfaces/msg/auto_aim.hpp>
 #include <vision_interfaces/msg/robot.hpp>
-#include <vision_interfaces/msg/custom_ctrl.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
