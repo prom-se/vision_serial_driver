@@ -31,10 +31,11 @@ struct sentry_robotMsg
 
 struct inf_visionMsg
 {
-    uint8_t head;
-    uint8_t fire;   // 开火标志
-    float aimYaw;   // 目标Yaw
-    float aimPitch; // 目标Pitch
+    uint16_t head;
+    uint8_t fire;     // 开火标志
+    uint8_t tracking; // 跟踪标志
+    float aimYaw;     // 目标Yaw
+    float aimPitch;   // 目标Pitch
 };
 
 struct inf_robotMsg
@@ -50,10 +51,10 @@ struct inf_robotMsg
 struct hero_visionMsg
 {
     uint16_t head;
-    uint8_t fire; // 开火标志
-    uint8_t tracking;   // 跟踪标志
-    float aimYaw;   // 目标Yaw
-    float aimPitch; // 目标Pitch
+    uint8_t fire;     // 开火标志
+    uint8_t tracking; // 跟踪标志
+    float aimYaw;     // 目标Yaw
+    float aimPitch;   // 目标Pitch
 };
 
 struct hero_robotMsg
@@ -64,7 +65,6 @@ struct hero_robotMsg
     float robotPitch;  // 自身Pitch
     float muzzleSpeed; // 弹速
 };
-
 
 union visionArray
 {
