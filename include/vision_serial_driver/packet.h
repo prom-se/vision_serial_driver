@@ -1,83 +1,41 @@
-#ifndef SERIAL_PACKET_H
-#define SERIAL_PACKET_H
+#ifndef PACKET_H
+#define PACKET_H
 
 #include <cstdint>
-#include <algorithm>
 
 #pragma pack(2)
 
-#define visionMsg inf_visionMsg
-#define robotMsg inf_robotMsg
-
-struct sentry_visionMsg
+namespace vision
 {
-    uint8_t head;
-    uint8_t fire;   // 开火标志
-    float aimYaw;   // 目标Yaw
-    float aimPitch; // 目标Pitch
-    float linearX;  // 线速度x
-    float linearY;  // 线速度y
-    float angularZ; // 角速度z
-};
+    struct VisionMsg
+    {
+        uint8_t head;
+        uint8_t fire;    // 开火标志
+        float aim_yaw;   // 目标Yaw
+        float aim_pitch; // 目标Pitch
+    };
 
-struct sentry_robotMsg
-{
-    uint8_t head;
-    uint8_t foeColor;  // 敌方颜色 0-blue 1-red
-    float robotYaw;    // 自身Yaw
-    float robotPitch;  // 自身Pitch
-    float muzzleSpeed; // 弹速
-};
+    struct RobotMsg
+    {
+        uint8_t head;
+        uint8_t foe_color;  // 敌方颜色 0-blue 1-red
+        float robot_yaw;    // 自身Yaw
+        float robot_pitch;  // 自身Pitch
+        float muzzle_speed; // 弹速
+    };
 
-struct inf_visionMsg
-{
-    uint16_t head;
-    uint8_t fire;     // 开火标志
-    uint8_t tracking; // 跟踪标志
-    float aimYaw;     // 目标Yaw
-    float aimPitch;   // 目标Pitch
-};
+    union VisionPack
+    {
+        VisionMsg msg;
+        uint8_t bytes[sizeof(VisionMsg)];
+    };
 
-struct inf_robotMsg
-{
-    uint16_t head;
-    uint8_t mode;
-    uint8_t foeColor;  // 敌方颜色 0-blue 1-red
-    float robotYaw;    // 自身Yaw
-    float robotPitch;  // 自身Pitch
-    float muzzleSpeed; // 弹速
-};
-
-struct hero_visionMsg
-{
-    uint16_t head;
-    uint8_t fire;     // 开火标志
-    uint8_t tracking; // 跟踪标志
-    float aimYaw;     // 目标Yaw
-    float aimPitch;   // 目标Pitch
-};
-
-struct hero_robotMsg
-{
-    uint16_t head;
-    uint8_t foeColor;  // 敌方颜色 0-blue 1-red
-    float robotYaw;    // 自身Yaw
-    float robotPitch;  // 自身Pitch
-    float muzzleSpeed; // 弹速
-};
-
-union visionArray
-{
-    struct visionMsg msg;
-    uint8_t array[sizeof(struct visionMsg)];
-};
-
-union robotArray
-{
-    struct robotMsg msg;
-    uint8_t array[sizeof(struct robotMsg)];
-};
-
+    union RobotPack
+    {
+        RobotMsg msg;
+        uint8_t bytes[sizeof(RobotMsg)];
+    };
+}
 #pragma pack()
 
-#endif // SERIAL_PACKET_H
+#endif // PACKET_H
